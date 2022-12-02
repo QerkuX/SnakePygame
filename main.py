@@ -2,20 +2,25 @@ import pygame as py
 from random import randint
 
 py.init()
-WW = 800 #window width
-WH = 800 #window height
+#they must be divisible by gs (grid size)!
+WW = 1000 #window width
+WH = 1000 #window height
+
 win = py.display.set_mode((WW, WH))
 py.display.set_caption("Snake")
 clock = py.time.Clock()
 font = py.font.SysFont('calibri', 30)
-FPS = 8
+mg = (30, 30, 30) #map gray
+mb = (10, 10, 10) #map black
+FPS = 6
 
 sx = [0] #snake X
 sy = [0] #snake Y
 se = 1 #snake elements
 sw = 50 #snake width
 sh = 50 #snake height
-sc = (0, 255, 0) #snake color
+sc = (0, 200, 0) #snake color
+hc = (0, 255, 0) #snakes head color
 xsm = 0 #X speed multiplier
 ysm = 0 #Y speed multiplier
 gs = 50 #grid square size
@@ -27,7 +32,14 @@ fc = (255, 0, 0)
 fw = 50
 fh = 50
 
+#Are buttons pressed
+ap = False
+dp = False
+wp = False
+sp = False
+
 score = 0
+
 run = True
 while run:
 
@@ -35,23 +47,47 @@ while run:
     for event in py.event.get():
         if event.type == py.QUIT:
             run = False
-    win.fill((0, 0, 0))
+
+    #map grid pattern
+    for i in range(1, int((WH / gs) + 1)):
+        for j in range(1, int((WW / gs) + 1)):
+            if (j + i) % 2 == 0:
+                py.draw.rect(win, mg, (j * 50 - 50, i * 50 - 50, sw, sh))
+            else:
+                py.draw.rect(win, mb, (j * 50 - 50, i * 50 - 50, sw, sh))
 
     #moving system
     keys = py.key.get_pressed()
 
     if keys[py.K_a]:
-        xsm = -1
-        ysm = 0
+        if xsm == 0 and not ap:
+            xsm = -1
+            ysm = 0
+            ap = True
+    else:
+        ap = False
     if keys[py.K_d]:
-        xsm = 1
-        ysm = 0
+        if xsm == 0 and not dp:
+            xsm = 1
+            ysm = 0
+            dp = True
+    else:
+        dp = False
     if keys[py.K_w]:
-        ysm = -1
-        xsm = 0
+        if ysm == 0 and not wp:
+            ysm = -1
+            xsm = 0
+            wp = True
+    else:
+        wp = False
     if keys[py.K_s]:
-        ysm = 1
-        xsm = 0
+        if ysm == 0 and not sp:
+            ysm = 1
+            xsm = 0
+            sp = True
+    else:
+        sp = False
+
 
     #Updating snake position
     if se > 1:
@@ -62,7 +98,7 @@ while run:
 
     sx[0] += gs * xsm
     sy[0] += gs * ysm
-    py.draw.rect(win, sc, (sx[0], sy[0], sw, sh))
+    py.draw.rect(win, hc, (sx[0], sy[0], sw, sh))
 
     #snake collision detection
     if se > 1:
@@ -84,7 +120,7 @@ while run:
             fx = randint(0, (WW-fw) / gs) * gs
             fy = randint(0, (WH-fh) / gs) * gs
             for i in range(se):
-                if sx[0] == fx and sy[0] == fy:
+                if sx[i] == fx and sy[i] == fy:
                     continue
             break
 
